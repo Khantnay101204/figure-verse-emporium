@@ -82,7 +82,7 @@ const PromotionsManager = () => {
   const [promoFormData, setPromoFormData] = useState({
     code: '',
     description: '',
-    type: 'percentage_discount' as const,
+    type: 'percentage_discount' as 'percentage_discount' | 'fixed_amount_discount' | 'free_shipping',
     value: '',
     minimum_order_amount: '',
     max_uses: '',
@@ -254,7 +254,7 @@ const PromotionsManager = () => {
                     </div>
                     <div>
                       <Label htmlFor="type">Type</Label>
-                      <Select value={promoFormData.type} onValueChange={(value: any) => setPromoFormData(prev => ({ ...prev, type: value }))}>
+                      <Select value={promoFormData.type} onValueChange={(value: 'percentage_discount' | 'fixed_amount_discount' | 'free_shipping') => setPromoFormData(prev => ({ ...prev, type: value }))}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
