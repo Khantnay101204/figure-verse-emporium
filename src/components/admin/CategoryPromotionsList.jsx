@@ -3,38 +3,28 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Edit, Trash2 } from 'lucide-react';
-import { PromoCode, PromoFormData } from './types';
 
-interface PromoCodesListProps {
-  promoCodes: PromoCode[];
-  onEdit: (promo: PromoCode) => void;
-  onDelete: (promoId: number) => void;
-}
-
-const PromoCodesList: React.FC<PromoCodesListProps> = ({
-  promoCodes,
+const CategoryPromotionsList = ({
+  categoryPromotions,
   onEdit,
   onDelete
 }) => {
   return (
     <div className="space-y-4">
-      {promoCodes.map(promo => (
-        <div key={promo.promo_code_id} className="flex items-center justify-between p-4 border rounded-lg">
+      {categoryPromotions.map(promo => (
+        <div key={promo.category_promo_id} className="flex items-center justify-between p-4 border rounded-lg">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Badge variant="secondary" className="font-mono">{promo.code}</Badge>
+              <Badge variant="outline">{promo.category_name}</Badge>
+              <Badge variant="secondary">{promo.discount_percentage}% OFF</Badge>
               <Badge variant={promo.is_active ? "default" : "secondary"}>
                 {promo.is_active ? "Active" : "Inactive"}
               </Badge>
             </div>
             <p className="text-sm text-gray-600 mb-1">{promo.description}</p>
-            <div className="text-xs text-gray-500 space-y-1">
-              <p>Type: {promo.type.replace('_', ' ')}</p>
-              <p>Value: {promo.type === 'percentage_discount' ? `${promo.value}%` : `$${promo.value}`}</p>
-              <p>Min Order: ${promo.minimum_order_amount}</p>
-              <p>Uses: {promo.uses_count}{promo.max_uses ? `/${promo.max_uses}` : ''}</p>
-              <p>Valid: {promo.start_date} to {promo.end_date}</p>
-            </div>
+            <p className="text-xs text-gray-500">
+              Valid: {promo.start_date} to {promo.end_date}
+            </p>
           </div>
           <div className="flex gap-2">
             <Button
@@ -47,7 +37,7 @@ const PromoCodesList: React.FC<PromoCodesListProps> = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onDelete(promo.promo_code_id)}
+              onClick={() => onDelete(promo.category_promo_id)}
             >
               <Trash2 className="w-4 h-4" />
             </Button>
@@ -58,4 +48,4 @@ const PromoCodesList: React.FC<PromoCodesListProps> = ({
   );
 };
 
-export default PromoCodesList;
+export default CategoryPromotionsList;

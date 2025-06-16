@@ -2,18 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 
-interface Category {
-  category_id: number;
-  category_name: string;
-  image_url: string;
-}
-
-interface CategoryCarouselProps {
-  onCategorySelect: (categoryId: number) => void;
-}
-
-const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ onCategorySelect }) => {
-  const [categories] = useState<Category[]>([
+const CategoryCarousel = ({ onCategorySelect }) => {
+  const [categories] = useState([
     { category_id: 1, category_name: 'Action Figures', image_url: '/placeholder.svg' },
     { category_id: 2, category_name: 'Anime Figures', image_url: '/placeholder.svg' },
     { category_id: 3, category_name: 'Collectibles', image_url: '/placeholder.svg' },

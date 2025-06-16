@@ -6,13 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { X, User, Settings, History, LogOut } from 'lucide-react';
 
-interface ProfileProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onOrderHistoryClick: () => void;
-}
-
-const Profile: React.FC<ProfileProps> = ({ isOpen, onClose, onOrderHistoryClick }) => {
+const Profile = ({ isOpen, onClose, onOrderHistoryClick }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [userInfo, setUserInfo] = useState({
     name: 'John Doe',

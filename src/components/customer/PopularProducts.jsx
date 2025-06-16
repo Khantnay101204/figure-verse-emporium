@@ -5,19 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Star } from 'lucide-react';
 
-interface Product {
-  product_id: number;
-  product_name: string;
-  price: number;
-  category_name: string;
-  image_url: string;
-  total_ordered: number;
-  rating: number;
-  stock_quantity: number;
-}
-
-const PopularProducts: React.FC = () => {
-  const [products] = useState<Product[]>([
+const PopularProducts = () => {
+  const [products] = useState([
     {
       product_id: 11,
       product_name: 'Bestselling Action Figure',

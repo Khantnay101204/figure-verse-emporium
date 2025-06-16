@@ -4,28 +4,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
-interface Product {
-  product_id: number;
-  product_name: string;
-  price: number;
-  category_name: string;
-  image_url: string;
-  stock_quantity: number;
-  is_featured: boolean;
-}
-
-interface ProductGridProps {
-  searchQuery: string;
-  selectedCategory: number | null;
-  priceRange: { min: number; max: number };
-}
-
-const ProductGrid: React.FC<ProductGridProps> = ({
+const ProductGrid = ({
   searchQuery,
   selectedCategory,
   priceRange
 }) => {
-  const [products] = useState<Product[]>([
+  const [products] = useState([
     {
       product_id: 1,
       product_name: 'Premium Action Figure Set',
@@ -90,8 +74,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     return matchesSearch && matchesCategory && matchesPrice;
   });
 
-  function getCategoryName(categoryId: number): string {
-    const categoryMap: { [key: number]: string } = {
+  function getCategoryName(categoryId) {
+    const categoryMap = {
       1: 'Action Figures',
       2: 'Anime Figures',
       3: 'Collectibles',

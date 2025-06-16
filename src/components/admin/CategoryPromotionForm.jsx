@@ -5,18 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CategoryPromoFormData, Category } from './types';
 
-interface CategoryPromotionFormProps {
-  formData: CategoryPromoFormData;
-  setFormData: React.Dispatch<React.SetStateAction<CategoryPromoFormData>>;
-  onSubmit: (e: React.FormEvent) => void;
-  onCancel: () => void;
-  isEditing: boolean;
-  categories: Category[];
-}
-
-const CategoryPromotionForm: React.FC<CategoryPromotionFormProps> = ({
+const CategoryPromotionForm = ({
   formData,
   setFormData,
   onSubmit,

@@ -6,14 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 
-interface ProductFiltersProps {
-  selectedCategory: number | null;
-  priceRange: { min: number; max: number };
-  onCategoryChange: (categoryId: number | null) => void;
-  onPriceRangeChange: (min: number, max: number) => void;
-}
-
-const ProductFilters: React.FC<ProductFiltersProps> = ({
+const ProductFilters = ({
   selectedCategory,
   priceRange,
   onCategoryChange,

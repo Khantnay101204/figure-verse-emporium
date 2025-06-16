@@ -5,17 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PromoFormData } from './types';
 
-interface PromoCodeFormProps {
-  formData: PromoFormData;
-  setFormData: React.Dispatch<React.SetStateAction<PromoFormData>>;
-  onSubmit: (e: React.FormEvent) => void;
-  onCancel: () => void;
-  isEditing: boolean;
-}
-
-const PromoCodeForm: React.FC<PromoCodeFormProps> = ({
+const PromoCodeForm = ({
   formData,
   setFormData,
   onSubmit,
@@ -44,7 +35,7 @@ const PromoCodeForm: React.FC<PromoCodeFormProps> = ({
       </div>
       <div>
         <Label htmlFor="type">Type</Label>
-        <Select value={formData.type} onValueChange={(value: 'percentage_discount' | 'fixed_amount_discount' | 'free_shipping') => setFormData(prev => ({ ...prev, type: value }))}>
+        <Select value={formData.type} onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
