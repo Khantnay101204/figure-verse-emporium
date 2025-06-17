@@ -1,23 +1,86 @@
 
 import React, { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Search, ShoppingCart, User, Menu, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
+import Header from '@/components/customer/Header';
 import CategoryCarousel from '@/components/customer/CategoryCarousel';
 import ProductFilters from '@/components/customer/ProductFilters';
-import ProductGrid from '@/components/customer/ProductGrid';
+import NewlyArrivedProducts from '@/components/customer/NewlyArrivedProducts';
 import PopularProducts from '@/components/customer/PopularProducts';
-import Profile from '@/components/customer/Profile';
 import Footer from '@/components/customer/Footer';
+import Cart from '@/components/customer/Cart';
 
 const CustomerStore = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [currentView, setCurrentView] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [cartItemCount] = useState(3);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [user] = useState(null); // For demo purposes
+
+  const [products] = useState([
+    {
+      product_id: 1,
+      product_name: 'Premium Action Figure Set',
+      price: 89.99,
+      category_id: 1,
+      category_name: 'Action Figures',
+      image_url: '/placeholder.svg',
+      stock_quantity: 25,
+      description: 'High-quality action figure with multiple accessories'
+    },
+    {
+      product_id: 2,
+      product_name: 'Anime Character Collectible',
+      price: 124.99,
+      category_id: 2,
+      category_name: 'Anime Figures',
+      image_url: '/placeholder.svg',
+      stock_quantity: 15,
+      description: 'Limited edition anime character figure'
+    },
+    {
+      product_id: 3,
+      product_name: 'Vintage Gaming Hero',
+      price: 79.99,
+      category_id: 6,
+      category_name: 'Gaming',
+      image_url: '/placeholder.svg',
+      stock_quantity: 30,
+      description: 'Retro gaming character collectible'
+    },
+    {
+      product_id: 4,
+      product_name: 'Limited Edition Statue',
+      price: 199.99,
+      category_id: 4,
+      category_name: 'Limited Edition',
+      image_url: '/placeholder.svg',
+      stock_quantity: 5,
+      description: 'Exclusive limited edition collectible statue'
+    },
+    {
+      product_id: 5,
+      product_name: 'Classic Superhero Figure',
+      price: 64.99,
+      category_id: 1,
+      category_name: 'Action Figures',
+      image_url: '/placeholder.svg',
+      stock_quantity: 40,
+      description: 'Classic superhero action figure'
+    },
+    {
+      product_id: 6,
+      product_name: 'Rare Collectible Card Set',
+      price: 149.99,
+      category_id: 3,
+      category_name: 'Collectibles',
+      image_url: '/placeholder.svg',
+      stock_quantity: 12,
+      description: 'Rare trading card collection'
+    }
+  ]);
 
   const handleCategorySelect = (categoryId) => {
     setSelectedCategory(categoryId);
@@ -27,145 +90,110 @@ const CustomerStore = () => {
     setPriceRange({ min, max });
   };
 
-  const handleOrderHistory = () => {
-    console.log('Opening order history...');
-    setIsProfileOpen(false);
+  const handleSearch = (query) => {
+    setSearchQuery(query);
   };
+
+  const filteredProducts = products.filter(product => {
+    const matchesCategory = selectedCategory === null || product.category_id === selectedCategory;
+    const matchesPrice = product.price >= priceRange.min && product.price <= priceRange.max;
+    const matchesSearch = searchQuery === '' || 
+      product.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.category_name.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    return matchesCategory && matchesPrice && matchesSearch;
+  });
+
+  const renderProductGrid = (productsToShow) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {productsToShow.map((product) => (
+        <Card key={product.product_id} className="hover:shadow-lg transition-shadow">
+          <CardContent className="p-4">
+            <div className="relative mb-4">
+              <img
+                src={product.image_url}
+                alt={product.product_name}
+                className="w-full h-48 object-cover rounded-md"
+              />
+              {product.stock_quantity <= 10 && (
+                <Badge className="absolute top-2 right-2 bg-red-500">
+                  Low Stock
+                </Badge>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="font-semibold text-lg">{product.product_name}</h3>
+              <p className="text-sm text-gray-600">{product.category_name}</p>
+              <p className="text-sm text-gray-500">{product.description}</p>
+              <div className="flex justify-between items-center">
+                <span className="text-2xl font-bold text-primary">
+                  ${product.price}
+                </span>
+                <span className="text-sm text-gray-500">
+                  {product.stock_quantity} in stock
+                </span>
+              </div>
+              <Button className="w-full">Add to Cart</Button>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg"></div>
-              <span className="text-xl font-bold text-gray-900">FigureVerse</span>
-            </Link>
-
-            {/* Search Bar - Desktop */}
-            <div className="hidden md:flex items-center flex-1 max-w-md mx-8">
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  type="text"
-                  placeholder="Search figures..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-
-            {/* Navigation - Desktop */}
-            <div className="hidden md:flex items-center space-x-4">
-              <Link to="/admin">
-                <Button variant="ghost">Admin</Button>
-              </Link>
-              <Button variant="ghost" className="relative">
-                <ShoppingCart className="w-5 h-5" />
-                {cartItemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {cartItemCount}
-                  </span>
-                )}
-              </Button>
-              <Button variant="ghost" onClick={() => setIsProfileOpen(true)}>
-                <User className="w-5 h-5" />
-              </Button>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              className="md:hidden"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
-          </div>
-
-          {/* Mobile Menu */}
-          {isMobileMenuOpen && (
-            <div className="md:hidden mt-4 pb-4 border-t">
-              <div className="space-y-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    type="text"
-                    placeholder="Search figures..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                <div className="flex space-x-4">
-                  <Link to="/admin" className="flex-1">
-                    <Button variant="outline" className="w-full">Admin</Button>
-                  </Link>
-                  <Button variant="outline" className="relative">
-                    <ShoppingCart className="w-5 h-5" />
-                    {cartItemCount > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {cartItemCount}
-                      </span>
-                    )}
-                  </Button>
-                  <Button variant="outline" onClick={() => setIsProfileOpen(true)}>
-                    <User className="w-5 h-5" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </header>
-
-      {/* Category Carousel */}
-      <CategoryCarousel onCategorySelect={handleCategorySelect} />
-
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        {/* Popular Products Section */}
-        <div className="mb-12">
-          <PopularProducts />
-        </div>
-
-        {/* Products Section with Filters */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Filters Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24">
-              <ProductFilters
-                selectedCategory={selectedCategory}
-                priceRange={priceRange}
-                onCategoryChange={setSelectedCategory}
-                onPriceRangeChange={handlePriceRangeChange}
-              />
-            </div>
-          </div>
-
-          {/* Product Grid */}
-          <div className="lg:col-span-3">
-            <ProductGrid
-              searchQuery={searchQuery}
-              selectedCategory={selectedCategory}
-              priceRange={priceRange}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Profile Sidebar */}
-      <Profile
-        isOpen={isProfileOpen}
-        onClose={() => setIsProfileOpen(false)}
-        onOrderHistoryClick={handleOrderHistory}
+      <Header
+        currentView={currentView}
+        onViewChange={setCurrentView}
+        onSearch={handleSearch}
+        onCartClick={() => setIsCartOpen(true)}
+        onProfileClick={() => console.log('Profile clicked')}
+        onNotificationsClick={() => console.log('Notifications clicked')}
+        onAuthClick={() => console.log('Auth clicked')}
+        user={user}
       />
 
-      {/* Footer */}
+      <main className="container mx-auto px-4 py-8">
+        {currentView === 'all' && (
+          <>
+            <CategoryCarousel onCategorySelect={handleCategorySelect} />
+            
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mt-8">
+              <div className="lg:col-span-1">
+                <ProductFilters
+                  selectedCategory={selectedCategory}
+                  priceRange={priceRange}
+                  onCategoryChange={setSelectedCategory}
+                  onPriceRangeChange={handlePriceRangeChange}
+                />
+              </div>
+              
+              <div className="lg:col-span-3">
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold mb-2">All Products</h2>
+                  <p className="text-gray-600">
+                    {filteredProducts.length} products found
+                  </p>
+                </div>
+                {renderProductGrid(filteredProducts)}
+              </div>
+            </div>
+          </>
+        )}
+
+        {currentView === 'newly-arrived' && (
+          <NewlyArrivedProducts />
+        )}
+
+        {currentView === 'popular' && (
+          <PopularProducts />
+        )}
+      </main>
+
       <Footer />
+      <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </div>
   );
 };
