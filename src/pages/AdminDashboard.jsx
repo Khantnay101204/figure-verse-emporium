@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus } from 'lucide-react';
+import { Plus, Package, Tag, ShoppingCart, Gift, Percent } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import PromoCodesList from '@/components/admin/PromoCodesList';
 import PromoCodeForm from '@/components/admin/PromoCodeForm';
 import CategoryPromotionsList from '@/components/admin/CategoryPromotionsList';
@@ -16,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const AdminDashboard = () => {
   const { toast } = useToast();
+  const location = useLocation();
   
   // Promo Codes State
   const [promoCodes, setPromoCodes] = useState([
@@ -254,118 +254,160 @@ const AdminDashboard = () => {
     });
   };
 
+  const navItems = [
+    { path: '/admin/products', label: 'Products', icon: Package },
+    { path: '/admin/categories', label: 'Categories', icon: Tag },
+    { path: '/admin/orders', label: 'Orders', icon: ShoppingCart },
+    { path: '/admin/promo-codes', label: 'Promo Codes', icon: Percent },
+    { path: '/admin/promotions', label: 'Promotions', icon: Gift },
+  ];
+
+  const getCurrentSection = () => {
+    const path = location.pathname;
+    if (path === '/admin' || path === '/admin/products') return 'products';
+    if (path === '/admin/categories') return 'categories';
+    if (path === '/admin/orders') return 'orders';
+    if (path === '/admin/promo-codes') return 'promo-codes';
+    if (path === '/admin/promotions') return 'promotions';
+    return 'products';
+  };
+
+  const renderContent = () => {
+    const section = getCurrentSection();
+    
+    switch (section) {
+      case 'products':
+        return <ProductsManager />;
+      case 'categories':
+        return <CategoriesManager />;
+      case 'orders':
+        return <OrdersManager />;
+      case 'promo-codes':
+        return (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Promo Codes</CardTitle>
+                <CardDescription>Manage discount codes and special offers</CardDescription>
+              </div>
+              <Dialog open={promoDialogOpen} onOpenChange={setPromoDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => { resetPromoForm(); setPromoDialogOpen(true); }}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Promo Code
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>{editingPromo ? 'Edit' : 'Create'} Promo Code</DialogTitle>
+                    <DialogDescription>
+                      {editingPromo ? 'Update the promo code details' : 'Add a new promotional discount code'}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <PromoCodeForm
+                    formData={promoFormData}
+                    setFormData={setPromoFormData}
+                    onSubmit={handlePromoSubmit}
+                    onCancel={() => { resetPromoForm(); setPromoDialogOpen(false); }}
+                    isEditing={!!editingPromo}
+                  />
+                </DialogContent>
+              </Dialog>
+            </CardHeader>
+            <CardContent>
+              <PromoCodesList
+                promoCodes={promoCodes}
+                onEdit={handlePromoEdit}
+                onDelete={handlePromoDelete}
+              />
+            </CardContent>
+          </Card>
+        );
+      case 'promotions':
+        return (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Category Promotions</CardTitle>
+                <CardDescription>Manage category-wide promotional discounts</CardDescription>
+              </div>
+              <Dialog open={categoryPromoDialogOpen} onOpenChange={setCategoryPromoDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => { resetCategoryPromoForm(); setCategoryPromoDialogOpen(true); }}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Category Promotion
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>{editingCategoryPromo ? 'Edit' : 'Create'} Category Promotion</DialogTitle>
+                    <DialogDescription>
+                      {editingCategoryPromo ? 'Update the category promotion details' : 'Add a new category-wide promotion'}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <CategoryPromotionForm
+                    formData={categoryPromoFormData}
+                    setFormData={setCategoryPromoFormData}
+                    onSubmit={handleCategoryPromoSubmit}
+                    onCancel={() => { resetCategoryPromoForm(); setCategoryPromoDialogOpen(false); }}
+                    isEditing={!!editingCategoryPromo}
+                    categories={categories}
+                  />
+                </DialogContent>
+              </Dialog>
+            </CardHeader>
+            <CardContent>
+              <CategoryPromotionsList
+                categoryPromotions={categoryPromotions}
+                onEdit={handleCategoryPromoEdit}
+                onDelete={handleCategoryPromoDelete}
+              />
+            </CardContent>
+          </Card>
+        );
+      default:
+        return <ProductsManager />;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
           <p className="text-gray-600">Manage your store products, orders, and promotions</p>
         </div>
 
-        <Tabs defaultValue="products" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="products">Products</TabsTrigger>
-            <TabsTrigger value="categories">Categories</TabsTrigger>
-            <TabsTrigger value="orders">Orders</TabsTrigger>
-            <TabsTrigger value="promo-codes">Promo Codes</TabsTrigger>
-            <TabsTrigger value="category-promotions">Promotions</TabsTrigger>
-          </TabsList>
+        {/* Horizontal Navigation */}
+        <div className="bg-white rounded-lg shadow-sm border mb-6">
+          <nav className="flex space-x-0">
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.path || 
+                (item.path === '/admin/products' && location.pathname === '/admin');
+              const Icon = item.icon;
+              
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                    isActive
+                      ? 'border-blue-500 text-blue-600 bg-blue-50'
+                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
 
-          <TabsContent value="products">
-            <ProductsManager />
-          </TabsContent>
-
-          <TabsContent value="categories">
-            <CategoriesManager />
-          </TabsContent>
-
-          <TabsContent value="orders">
-            <OrdersManager />
-          </TabsContent>
-
-          <TabsContent value="promo-codes" className="space-y-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle>Promo Codes</CardTitle>
-                  <CardDescription>Manage discount codes and special offers</CardDescription>
-                </div>
-                <Dialog open={promoDialogOpen} onOpenChange={setPromoDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button onClick={() => { resetPromoForm(); setPromoDialogOpen(true); }}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Promo Code
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>{editingPromo ? 'Edit' : 'Create'} Promo Code</DialogTitle>
-                      <DialogDescription>
-                        {editingPromo ? 'Update the promo code details' : 'Add a new promotional discount code'}
-                      </DialogDescription>
-                    </DialogHeader>
-                    <PromoCodeForm
-                      formData={promoFormData}
-                      setFormData={setPromoFormData}
-                      onSubmit={handlePromoSubmit}
-                      onCancel={() => { resetPromoForm(); setPromoDialogOpen(false); }}
-                      isEditing={!!editingPromo}
-                    />
-                  </DialogContent>
-                </Dialog>
-              </CardHeader>
-              <CardContent>
-                <PromoCodesList
-                  promoCodes={promoCodes}
-                  onEdit={handlePromoEdit}
-                  onDelete={handlePromoDelete}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="category-promotions" className="space-y-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle>Category Promotions</CardTitle>
-                  <CardDescription>Manage category-wide promotional discounts</CardDescription>
-                </div>
-                <Dialog open={categoryPromoDialogOpen} onOpenChange={setCategoryPromoDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button onClick={() => { resetCategoryPromoForm(); setCategoryPromoDialogOpen(true); }}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Category Promotion
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>{editingCategoryPromo ? 'Edit' : 'Create'} Category Promotion</DialogTitle>
-                      <DialogDescription>
-                        {editingCategoryPromo ? 'Update the category promotion details' : 'Add a new category-wide promotion'}
-                      </DialogDescription>
-                    </DialogHeader>
-                    <CategoryPromotionForm
-                      formData={categoryPromoFormData}
-                      setFormData={setCategoryPromoFormData}
-                      onSubmit={handleCategoryPromoSubmit}
-                      onCancel={() => { resetCategoryPromoForm(); setCategoryPromoDialogOpen(false); }}
-                      isEditing={!!editingCategoryPromo}
-                      categories={categories}
-                    />
-                  </DialogContent>
-                </Dialog>
-              </CardHeader>
-              <CardContent>
-                <CategoryPromotionsList
-                  categoryPromotions={categoryPromotions}
-                  onEdit={handleCategoryPromoEdit}
-                  onDelete={handleCategoryPromoDelete}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        {/* Content */}
+        <div className="space-y-6">
+          {renderContent()}
+        </div>
       </div>
     </div>
   );
