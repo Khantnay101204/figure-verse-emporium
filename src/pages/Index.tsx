@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, Package, Users, BarChart3, Store } from 'lucide-react';
+import { Shield, Package, Users, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
@@ -13,7 +13,7 @@ const Index = () => {
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold text-gray-900 mb-4">
-            Figure Store System
+            Figure Store Admin
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Complete management system for your figure store. Handle products, categories, promotions, and orders with ease.
@@ -62,15 +62,12 @@ const Index = () => {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          <Card>
+        <div className="text-center">
+          <Card className="max-w-md mx-auto">
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Users className="w-6 h-6 mr-2" />
-                Admin Dashboard
-              </CardTitle>
+              <CardTitle>Ready to manage your store?</CardTitle>
               <CardDescription>
-                Access your comprehensive admin dashboard to manage your figure store
+                Access your comprehensive admin dashboard to start managing your figure store
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -80,28 +77,6 @@ const Index = () => {
                 onClick={() => navigate('/admin')}
               >
                 Open Admin Dashboard
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Store className="w-6 h-6 mr-2" />
-                Customer Store
-              </CardTitle>
-              <CardDescription>
-                View your store from the customer's perspective with shopping experience
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button 
-                size="lg" 
-                className="w-full"
-                variant="outline"
-                onClick={() => navigate('/store')}
-              >
-                Visit Customer Store
               </Button>
             </CardContent>
           </Card>
@@ -115,7 +90,7 @@ const Index = () => {
             <span>✓ Promo Code System</span>
             <span>✓ Category Promotions</span>
             <span>✓ Order Tracking</span>
-            <span>✓ Customer Shopping Experience</span>
+            <span>✓ Status Updates</span>
           </div>
         </div>
       </div>

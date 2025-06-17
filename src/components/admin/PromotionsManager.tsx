@@ -2,21 +2,40 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Gift, Percent } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Plus, Edit, Trash2, Gift, Percent } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import PromoCodeForm from './PromoCodeForm';
-import CategoryPromotionForm from './CategoryPromotionForm';
-import PromoCodesList from './PromoCodesList';
-import CategoryPromotionsList from './CategoryPromotionsList';
-import {
-  PromoCode,
-  CategoryPromotion,
-  Category,
-  PromoFormData,
-  CategoryPromoFormData
-} from './types';
+
+interface PromoCode {
+  promo_code_id: number;
+  code: string;
+  description: string;
+  type: 'percentage_discount' | 'fixed_amount_discount' | 'free_shipping';
+  value: number;
+  minimum_order_amount: number;
+  max_uses: number | null;
+  uses_count: number;
+  start_date: string;
+  end_date: string;
+  is_active: boolean;
+}
+
+interface CategoryPromotion {
+  category_promo_id: number;
+  category_id: number;
+  category_name: string;
+  discount_percentage: number;
+  start_date: string;
+  end_date: string;
+  description: string;
+  is_active: boolean;
+}
 
 const PromotionsManager = () => {
   const { toast } = useToast();
@@ -54,16 +73,16 @@ const PromotionsManager = () => {
     }
   ]);
 
-  const categories: Category[] = [
+  const categories = [
     { category_id: 1, category_name: 'Anime Figures' },
     { category_id: 2, category_name: 'Marvel Figures' },
     { category_id: 3, category_name: 'DC Figures' }
   ];
 
-  const [promoFormData, setPromoFormData] = useState<PromoFormData>({
+  const [promoFormData, setPromoFormData] = useState({
     code: '',
     description: '',
-    type: 'percentage_discount',
+    type: 'percentage_discount' as const,
     value: '',
     minimum_order_amount: '',
     max_uses: '',
@@ -71,7 +90,7 @@ const PromotionsManager = () => {
     end_date: ''
   });
 
-  const [categoryPromoFormData, setCategoryPromoFormData] = useState<CategoryPromoFormData>({
+  const [categoryPromoFormData, setCategoryPromoFormData] = useState({
     category_id: '',
     discount_percentage: '',
     start_date: '',
@@ -183,49 +202,6 @@ const PromotionsManager = () => {
     setIsCategoryPromoDialogOpen(false);
   };
 
-  const handleEditPromo = (promo: PromoCode) => {
-    setEditingPromo(promo);
-    setPromoFormData({
-      code: promo.code,
-      description: promo.description,
-      type: promo.type,
-      value: promo.value.toString(),
-      minimum_order_amount: promo.minimum_order_amount.toString(),
-      max_uses: promo.max_uses?.toString() || '',
-      start_date: promo.start_date,
-      end_date: promo.end_date
-    });
-    setIsPromoDialogOpen(true);
-  };
-
-  const handleEditCategoryPromo = (promo: CategoryPromotion) => {
-    setEditingCategoryPromo(promo);
-    setCategoryPromoFormData({
-      category_id: promo.category_id.toString(),
-      discount_percentage: promo.discount_percentage.toString(),
-      start_date: promo.start_date,
-      end_date: promo.end_date,
-      description: promo.description
-    });
-    setIsCategoryPromoDialogOpen(true);
-  };
-
-  const handleDeletePromo = (promoId: number) => {
-    setPromoCodes(prev => prev.filter(p => p.promo_code_id !== promoId));
-    toast({
-      title: "Promo Code Deleted",
-      description: "Promo code has been successfully deleted.",
-    });
-  };
-
-  const handleDeleteCategoryPromo = (promoId: number) => {
-    setCategoryPromotions(prev => prev.filter(p => p.category_promo_id !== promoId));
-    toast({
-      title: "Category Promotion Deleted",
-      description: "Category promotion has been successfully deleted.",
-    });
-  };
-
   return (
     <div className="space-y-6">
       <Tabs defaultValue="promo-codes" className="space-y-6">
@@ -257,22 +233,160 @@ const PromotionsManager = () => {
                       {editingPromo ? 'Edit Promo Code' : 'Add New Promo Code'}
                     </DialogTitle>
                   </DialogHeader>
-                  <PromoCodeForm
-                    formData={promoFormData}
-                    setFormData={setPromoFormData}
-                    onSubmit={handlePromoSubmit}
-                    onCancel={resetPromoForm}
-                    isEditing={!!editingPromo}
-                  />
+                  <form onSubmit={handlePromoSubmit} className="space-y-4">
+                    <div>
+                      <Label htmlFor="code">Code</Label>
+                      <Input
+                        id="code"
+                        value={promoFormData.code}
+                        onChange={(e) => setPromoFormData(prev => ({ ...prev, code: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="description">Description</Label>
+                      <Textarea
+                        id="description"
+                        value={promoFormData.description}
+                        onChange={(e) => setPromoFormData(prev => ({ ...prev, description: e.target.value }))}
+                        rows={2}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="type">Type</Label>
+                      <Select value={promoFormData.type} onValueChange={(value: any) => setPromoFormData(prev => ({ ...prev, type: value }))}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="percentage_discount">Percentage Discount</SelectItem>
+                          <SelectItem value="fixed_amount_discount">Fixed Amount Discount</SelectItem>
+                          <SelectItem value="free_shipping">Free Shipping</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="value">Value</Label>
+                      <Input
+                        id="value"
+                        type="number"
+                        step="0.01"
+                        value={promoFormData.value}
+                        onChange={(e) => setPromoFormData(prev => ({ ...prev, value: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="min_order">Minimum Order Amount</Label>
+                      <Input
+                        id="min_order"
+                        type="number"
+                        step="0.01"
+                        value={promoFormData.minimum_order_amount}
+                        onChange={(e) => setPromoFormData(prev => ({ ...prev, minimum_order_amount: e.target.value }))}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="max_uses">Max Uses (optional)</Label>
+                      <Input
+                        id="max_uses"
+                        type="number"
+                        value={promoFormData.max_uses}
+                        onChange={(e) => setPromoFormData(prev => ({ ...prev, max_uses: e.target.value }))}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label htmlFor="start_date">Start Date</Label>
+                        <Input
+                          id="start_date"
+                          type="date"
+                          value={promoFormData.start_date}
+                          onChange={(e) => setPromoFormData(prev => ({ ...prev, start_date: e.target.value }))}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="end_date">End Date</Label>
+                        <Input
+                          id="end_date"
+                          type="date"
+                          value={promoFormData.end_date}
+                          onChange={(e) => setPromoFormData(prev => ({ ...prev, end_date: e.target.value }))}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="flex gap-2 pt-4">
+                      <Button type="submit" className="flex-1">
+                        {editingPromo ? 'Update' : 'Create'} Promo Code
+                      </Button>
+                      <Button type="button" variant="outline" onClick={resetPromoForm}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
                 </DialogContent>
               </Dialog>
             </CardHeader>
             <CardContent>
-              <PromoCodesList
-                promoCodes={promoCodes}
-                onEdit={handleEditPromo}
-                onDelete={handleDeletePromo}
-              />
+              <div className="space-y-4">
+                {promoCodes.map(promo => (
+                  <div key={promo.promo_code_id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="secondary" className="font-mono">{promo.code}</Badge>
+                        <Badge variant={promo.is_active ? "default" : "secondary"}>
+                          {promo.is_active ? "Active" : "Inactive"}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-1">{promo.description}</p>
+                      <div className="text-xs text-gray-500 space-y-1">
+                        <p>Type: {promo.type.replace('_', ' ')}</p>
+                        <p>Value: {promo.type === 'percentage_discount' ? `${promo.value}%` : `$${promo.value}`}</p>
+                        <p>Min Order: ${promo.minimum_order_amount}</p>
+                        <p>Uses: {promo.uses_count}{promo.max_uses ? `/${promo.max_uses}` : ''}</p>
+                        <p>Valid: {promo.start_date} to {promo.end_date}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setEditingPromo(promo);
+                          setPromoFormData({
+                            code: promo.code,
+                            description: promo.description,
+                            type: promo.type,
+                            value: promo.value.toString(),
+                            minimum_order_amount: promo.minimum_order_amount.toString(),
+                            max_uses: promo.max_uses?.toString() || '',
+                            start_date: promo.start_date,
+                            end_date: promo.end_date
+                          });
+                          setIsPromoDialogOpen(true);
+                        }}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setPromoCodes(prev => prev.filter(p => p.promo_code_id !== promo.promo_code_id));
+                          toast({
+                            title: "Promo Code Deleted",
+                            description: "Promo code has been successfully deleted.",
+                          });
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -294,23 +408,128 @@ const PromotionsManager = () => {
                       {editingCategoryPromo ? 'Edit Category Promotion' : 'Add New Category Promotion'}
                     </DialogTitle>
                   </DialogHeader>
-                  <CategoryPromotionForm
-                    formData={categoryPromoFormData}
-                    setFormData={setCategoryPromoFormData}
-                    onSubmit={handleCategoryPromoSubmit}
-                    onCancel={resetCategoryPromoForm}
-                    isEditing={!!editingCategoryPromo}
-                    categories={categories}
-                  />
+                  <form onSubmit={handleCategoryPromoSubmit} className="space-y-4">
+                    <div>
+                      <Label htmlFor="category">Category</Label>
+                      <Select value={categoryPromoFormData.category_id} onValueChange={(value) => setCategoryPromoFormData(prev => ({ ...prev, category_id: value }))}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map(category => (
+                            <SelectItem key={category.category_id} value={category.category_id.toString()}>
+                              {category.category_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="discount">Discount Percentage</Label>
+                      <Input
+                        id="discount"
+                        type="number"
+                        step="0.01"
+                        value={categoryPromoFormData.discount_percentage}
+                        onChange={(e) => setCategoryPromoFormData(prev => ({ ...prev, discount_percentage: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="promo_description">Description</Label>
+                      <Textarea
+                        id="promo_description"
+                        value={categoryPromoFormData.description}
+                        onChange={(e) => setCategoryPromoFormData(prev => ({ ...prev, description: e.target.value }))}
+                        rows={2}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label htmlFor="promo_start_date">Start Date</Label>
+                        <Input
+                          id="promo_start_date"
+                          type="date"
+                          value={categoryPromoFormData.start_date}
+                          onChange={(e) => setCategoryPromoFormData(prev => ({ ...prev, start_date: e.target.value }))}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="promo_end_date">End Date</Label>
+                        <Input
+                          id="promo_end_date"
+                          type="date"
+                          value={categoryPromoFormData.end_date}
+                          onChange={(e) => setCategoryPromoFormData(prev => ({ ...prev, end_date: e.target.value }))}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="flex gap-2 pt-4">
+                      <Button type="submit" className="flex-1">
+                        {editingCategoryPromo ? 'Update' : 'Create'} Promotion
+                      </Button>
+                      <Button type="button" variant="outline" onClick={resetCategoryPromoForm}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
                 </DialogContent>
               </Dialog>
             </CardHeader>
             <CardContent>
-              <CategoryPromotionsList
-                categoryPromotions={categoryPromotions}
-                onEdit={handleEditCategoryPromo}
-                onDelete={handleDeleteCategoryPromo}
-              />
+              <div className="space-y-4">
+                {categoryPromotions.map(promo => (
+                  <div key={promo.category_promo_id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="outline">{promo.category_name}</Badge>
+                        <Badge variant="secondary">{promo.discount_percentage}% OFF</Badge>
+                        <Badge variant={promo.is_active ? "default" : "secondary"}>
+                          {promo.is_active ? "Active" : "Inactive"}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-1">{promo.description}</p>
+                      <p className="text-xs text-gray-500">
+                        Valid: {promo.start_date} to {promo.end_date}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setEditingCategoryPromo(promo);
+                          setCategoryPromoFormData({
+                            category_id: promo.category_id.toString(),
+                            discount_percentage: promo.discount_percentage.toString(),
+                            start_date: promo.start_date,
+                            end_date: promo.end_date,
+                            description: promo.description
+                          });
+                          setIsCategoryPromoDialogOpen(true);
+                        }}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setCategoryPromotions(prev => prev.filter(p => p.category_promo_id !== promo.category_promo_id));
+                          toast({
+                            title: "Category Promotion Deleted",
+                            description: "Category promotion has been successfully deleted.",
+                          });
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
