@@ -9,6 +9,9 @@ import PromoCodesList from '@/components/admin/PromoCodesList';
 import PromoCodeForm from '@/components/admin/PromoCodeForm';
 import CategoryPromotionsList from '@/components/admin/CategoryPromotionsList';
 import CategoryPromotionForm from '@/components/admin/CategoryPromotionForm';
+import CategoriesManager from '@/components/admin/CategoriesManager';
+import ProductsManager from '@/components/admin/ProductsManager';
+import OrdersManager from '@/components/admin/OrdersManager';
 import { useToast } from '@/hooks/use-toast';
 
 const AdminDashboard = () => {
@@ -44,7 +47,6 @@ const AdminDashboard = () => {
     }
   ]);
 
-  // Category Promotions State
   const [categoryPromotions, setCategoryPromotions] = useState([
     {
       category_promo_id: 1,
@@ -257,14 +259,29 @@ const AdminDashboard = () => {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600">Manage your store promotions and settings</p>
+          <p className="text-gray-600">Manage your store products, orders, and promotions</p>
         </div>
 
-        <Tabs defaultValue="promo-codes" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs defaultValue="products" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="categories">Categories</TabsTrigger>
+            <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="promo-codes">Promo Codes</TabsTrigger>
-            <TabsTrigger value="category-promotions">Category Promotions</TabsTrigger>
+            <TabsTrigger value="category-promotions">Promotions</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="products">
+            <ProductsManager />
+          </TabsContent>
+
+          <TabsContent value="categories">
+            <CategoriesManager />
+          </TabsContent>
+
+          <TabsContent value="orders">
+            <OrdersManager />
+          </TabsContent>
 
           <TabsContent value="promo-codes" className="space-y-6">
             <Card>
