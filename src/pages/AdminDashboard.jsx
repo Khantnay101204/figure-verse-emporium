@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Plus, Package, Tag, ShoppingCart, Gift, Percent } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import PromoCodesList from '@/components/admin/PromoCodesList';
@@ -378,9 +379,9 @@ const AdminDashboard = () => {
           <p className="text-gray-600">Manage your store products, orders, and promotions</p>
         </div>
 
-        {/* Horizontal Navigation */}
+        {/* Horizontal Navigation with spacing */}
         <div className="bg-white rounded-lg shadow-sm border mb-6">
-          <nav className="flex space-x-0">
+          <nav className="flex space-x-2">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path || 
                 (item.path === '/admin/products' && location.pathname === '/admin');
